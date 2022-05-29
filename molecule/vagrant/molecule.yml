@@ -1,0 +1,55 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+platforms:
+  - name: rhel8
+    box: generic/rhel8
+    pre_build_image: true
+    memory: 2048
+    cpus: 2
+    config_options:
+      ssh.keep_alive: yes
+      ssh.remote_user: "'vagrant'"
+  - name: debian11
+    box: generic/debian11
+    pre_build_image: true
+    memory: 2048
+    cpus: 2
+    config_options:
+      ssh.keep_alive: yes
+      ssh.remote_user: "'vagrant'"
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      # # Inventory used for Molecule when executing the Ansible role tested.     
+      instance:
+        variable1: value
+        variable2: False
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+scenario:
+  test_sequence:
+    - dependency
+    - lint
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - verify
+    - cleanup
+    - destroy
+verifier:
+  name: testinfra
+  options:
+    sudo: true
+    v: 1
