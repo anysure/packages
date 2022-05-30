@@ -29,6 +29,13 @@
   - name: Update apt cache
     ansible.builtin.apt:
       update_cache: yes
+      force_apt_get: yes
+      cache_valid_time: 3600
+
+  - name: Upgrade all packages on servers
+    ansible.builtin.apt: 
+      upgrade: dist
+      force_apt_get: yes
 
   - name: Install APT packages
     ansible.builtin.apt:
@@ -43,11 +50,6 @@
       install_recommends: "{{ item.apt_install_recommends | default(omit) }}"
     when: (item.apt_ignore|default('no'))|string in 'False,false,No,no'
     with_items: "{{ packages }}"
-
-  - name: upgrade all packages
-    ansible.builtin.apt:
-      name: *
-      state: latest
 
   when: ansible_pkg_mgr == 'apt'
 
@@ -66,7 +68,6 @@
 
   - name: upgrade all packages
     ansible.builtin.yum:
-      name: *
       state: latest
 
   when: ansible_pkg_mgr == 'yum'
@@ -85,7 +86,6 @@
 
   - name: upgrade all packages
     ansible.builtin.dnf:
-      name: *
       state: latest
 
   when: ansible_pkg_mgr == 'dnf'
